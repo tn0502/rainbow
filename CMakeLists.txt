@@ -284,14 +284,24 @@ else()
     src/Audio/AudioFile.h
     src/Audio/Codecs/OggVorbisAudioFile.cpp
     src/Audio/Codecs/OggVorbisAudioFile.h
-    src/Audio/cubeb/Mixer.cpp
-    src/Audio/cubeb/Mixer.h
   )
-  if(APPLE)
+  if(EMSCRIPTEN)
+    add_definitions(-DRAINBOW_AUDIO_AL=1)
     list(APPEND SOURCE_FILES
-      src/Audio/Codecs/AppleAudioFile.cpp
-      src/Audio/Codecs/AppleAudioFile.h
+      src/Audio/AL/Mixer.cpp
+      src/Audio/AL/Mixer.h
     )
+  else()
+    list(APPEND SOURCE_FILES
+      src/Audio/cubeb/Mixer.cpp
+      src/Audio/cubeb/Mixer.h
+    )
+    if(APPLE)
+      list(APPEND SOURCE_FILES
+        src/Audio/Codecs/AppleAudioFile.cpp
+        src/Audio/Codecs/AppleAudioFile.h
+        )
+    endif()
   endif()
 endif()
 
@@ -393,7 +403,7 @@ if(NOT ANDROID)
   find_package(OpenGL REQUIRED)
   if(TARGET OpenGL::OpenGL)
     target_link_libraries(rainbow OpenGL::OpenGL)
-  else()
+  elseif(NOT EMSCRIPTEN)
     target_link_libraries(rainbow ${OPENGL_ext_LIBRARY} ${OPENGL_gl_LIBRARY})
   endif()
 endif()
@@ -419,9 +429,14 @@ elseif(APPLE)
   find_library(CORESERVICES_LIBRARY CoreServices REQUIRED)
   target_link_libraries(rainbow ${CORESERVICES_LIBRARY})
 elseif(UNIX AND NOT MINGW)
-  if(COVERAGE)
-    set(CMAKE_EXE_LINKER_FLAGS "--coverage")
+  if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    target_link_libraries(rainbow m rt)
+  else()
+    if(COVERAGE)
+      set(CMAKE_EXE_LINKER_FLAGS "--coverage")
+    endif()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,now -Wl,-z,relro -pie -pthread")
+    target_link_libraries(rainbow m rt stdc++fs)
   endif()
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,now -Wl,-z,relro -pie -pthread")
-  target_link_libraries(rainbow m rt stdc++fs)
 endif()

@@ -5,7 +5,8 @@ on:
       - master
   pull_request:
 env:
-  WINDOWS_10_SDK: "10.0.19041.0"
+  EMSCRIPTEN_SDK: 2.0.15
+  WINDOWS_10_SDK: 10.0.19041.0
 jobs:
   Windows:
     strategy:
@@ -177,6 +178,29 @@ jobs:
       run: |
         set -o pipefail
         xcodebuild -project build/ios/Rainbow.xcodeproj -scheme Rainbow -arch arm64 CODE_SIGNING_ALLOWED=NO | xcpretty
+  Emscripten:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+    - name: Checkout Emscripten SDK
+      uses: actions/checkout@v2
+      with:
+        repository: 'emscripten-core/emsdk'
+        path: '.emsdk'
+    - name: Build
+      run: |
+        set -o pipefail
+        cd .emsdk
+        ./emsdk install $EMSCRIPTEN_SDK
+        ./emsdk activate $EMSCRIPTEN_SDK
+        source ./emsdk_env.sh
+        cd ..
+        mkdir -p build/js
+        cd build/js
+        ../../tools/build.sh emscripten
   Node:
     runs-on: ubuntu-latest
     steps:

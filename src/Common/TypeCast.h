@@ -11,13 +11,19 @@
 namespace rainbow
 {
     template <typename T, typename U>
-    constexpr auto narrow_cast(U value)
+    constexpr auto narrow_cast(U value) -> T
     {
-        static_assert(!std::is_same_v<T, U>);
-        static_assert(std::is_signed_v<T> != std::is_signed_v<U> ||
-                      std::numeric_limits<T>::digits <
-                          std::numeric_limits<U>::digits);
-        return static_cast<T>(value);
+        if constexpr (!std::is_same_v<T, U> &&
+                      (std::is_signed_v<T> != std::is_signed_v<U> ||
+                       std::numeric_limits<T>::digits <
+                           std::numeric_limits<U>::digits))
+        {
+            return static_cast<T>(value);
+        }
+        else
+        {
+            return value;
+        }
     }
 
     template <typename T>

@@ -6,7 +6,7 @@ if(ANDROID)
   # Pass through.
 elseif(EMSCRIPTEN)
   set(SDL2_INCLUDE_DIRS ${LOCAL_LIBRARY}/SDL/include)
-  set_target_properties(rainbow PROPERTIES LINK_FLAGS "-s DEMANGLE_SUPPORT=1 -s USE_SDL=2")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DEMANGLE_SUPPORT=1 -s USE_SDL=2")
 elseif(MSVC)
   download_library(
     sdl2-bin

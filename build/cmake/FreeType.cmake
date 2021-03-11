@@ -1,5 +1,5 @@
 if(EMSCRIPTEN)
-  set(EMCC_FLAGS "${EMCC_FLAGS} -s USE_FREETYPE=1 -s USE_HARFBUZZ=1")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_FREETYPE=1 -s USE_HARFBUZZ=1")
 else()
   # Build FreeType without HarfBuzz to break the circular dependency
   set(FREETYPE_INCLUDE_DIR_freetype2 ${LOCAL_LIBRARY}/FreeType/include)

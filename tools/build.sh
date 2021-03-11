@@ -13,9 +13,6 @@ fi
 
 function compile {
   case "$1" in
-    "Emscripten")
-      make
-      ;;
     "Ninja")
       $ANALYZER ninja
       ;;
@@ -105,7 +102,7 @@ case $1 in
       exit 1
     fi
     eval run_cmake -DCMAKE_TOOLCHAIN_FILE="$EMSCRIPTEN/cmake/Modules/Platform/Emscripten.cmake" $args &&
-    compile Emscripten
+    compile "$(generator)"
     ;;
   "help")
     $SHELL $0 --help
